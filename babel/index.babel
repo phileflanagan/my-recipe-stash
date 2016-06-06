@@ -266,13 +266,19 @@ class Modal extends React.Component {
 class RecipeBox extends React.Component {
 	constructor(props) {
 		super(props)
+		this.ph;
+		if (localStorage.getItem("_recipes_") === null ) {
+			this.ph = this.props.placeholder;
+		} else {
+			this.ph = JSON.parse(localStorage._recipes_);
+		}
 		this.state = {
-			recipes: JSON.parse(localStorage._recipes_)
+			recipes: this.ph
 		}
 	}
 
 	componentWillUpdate() {
-		localStorage._recipes = JSON.stringify(this.state.recipes);
+		localStorage._recipes_ = JSON.stringify(this.state.recipes);
 		// console.log("Will Update: " + JSON.stringify(this.state.recipes));
 	}
 
@@ -313,22 +319,27 @@ class RecipeBox extends React.Component {
 		this.setState({
 			recipes
 		});
+		
+		console.log(this.state.recipes);
+	}
+	 outputRecipes() {
+		let recipes = this.state.recipes.map(recipe => {
+			return <Recipe 
+							 id={recipe.id}
+							 name={recipe.name} 
+							 ingredients={recipe.ingredients}
+							 editRecipe={this.editRecipe.bind(this)}
+							 deleteRecipe={this.deleteRecipe.bind(this)}/>
+		});
+		return recipes
 	}
 
 	render() {
-		let recipes = this.state.recipes.map(recipe => {
-			return <Recipe 
-								id={recipe.id}
-							 	name={recipe.name} 
-							 	ingredients={recipe.ingredients}
-							 	editRecipe={this.editRecipe.bind(this)}
-							  deleteRecipe={this.deleteRecipe.bind(this)}/>
-		})
 		return (
 			<div className="row">
 				<div className="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
 						<div className="panel-group" id="accordion">
-						{recipes}
+							{this.outputRecipes()}
 						</div>
 					<AddButton addRecipe={this.addRecipe.bind(this)} />
 				</div>
@@ -340,36 +351,35 @@ class RecipeBox extends React.Component {
 // Layout Component
 class RecipeBook extends React.Component {
 	render() {
+		const placeholderRecipes = [
+			{
+				id: 0,
+				name: "Veggie Burger",
+				ingredients: "blackbeans, mushroom, flaxseed, lentils, spices, miso"
+			}, {
+				id: 1,
+				name: "Burrito",
+				ingredients: "tortilla, rice, corn, blackkbeans, salsa, sofritas, lettuce"
+			}, {
+				id: 2,
+				name: "Sweet Potato Sushi",
+				ingredients: "sweet potato, white rice, rice vinegar, sugar, nori, avocado"
+			}, {
+				id: 3,
+				name: "Curried Potatoes",
+				ingredients: "potatoes, garam masala, curry powder, smoked paprika, oil"
+			}
+		];
 		return (
 			<div id="mainContainer">
 				<Nav />
-				<RecipeBox />
+				<RecipeBox placeholder={placeholderRecipes}/>
 				<Footer />
       </div>
 		);
 	}
 }
 
-// Placeholder Values
-const placeholderRecipes = [
-	{
-		id: 0,
-		name: "Veggie Burger",
-		ingredients: "blackbeans, mushroom, flaxseed, lentils, spices, miso"
-	}, {
-		id: 1,
-		name: "Burrito",
-		ingredients: "tortilla, rice, corn, blackkbeans, salsa, sofritas, lettuce"
-	}, {
-		id: 2,
-		name: "Sweet Potato Sushi",
-		ingredients: "sweet potato, white rice, rice vinegar, sugar, nori, avocado"
-	}, {
-		id: 3,
-		name: "Curried Potatoes",
-		ingredients: "potatoes, garam masala, curry powder, smoked paprika, oil"
-	}
-];
-localStorage._recipes_ = JSON.stringify(placeholderRecipes);
+
 
 ReactDOM.render(<RecipeBook />, document.getElementById('app'));

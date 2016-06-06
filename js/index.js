@@ -466,14 +466,20 @@ var RecipeBox = function (_React$Component6) {
 
 		var _this6 = _possibleConstructorReturn(this, _React$Component6.call(this, props));
 
+		_this6.ph;
+		if (localStorage.getItem("_recipes_") === null) {
+			_this6.ph = _this6.props.placeholder;
+		} else {
+			_this6.ph = JSON.parse(localStorage._recipes_);
+		}
 		_this6.state = {
-			recipes: JSON.parse(localStorage._recipes_)
+			recipes: _this6.ph
 		};
 		return _this6;
 	}
 
 	RecipeBox.prototype.componentWillUpdate = function componentWillUpdate() {
-		localStorage._recipes = JSON.stringify(this.state.recipes);
+		localStorage._recipes_ = JSON.stringify(this.state.recipes);
 		// console.log("Will Update: " + JSON.stringify(this.state.recipes));
 	};
 
@@ -514,9 +520,11 @@ var RecipeBox = function (_React$Component6) {
 		this.setState({
 			recipes: recipes
 		});
+
+		console.log(this.state.recipes);
 	};
 
-	RecipeBox.prototype.render = function render() {
+	RecipeBox.prototype.outputRecipes = function outputRecipes() {
 		var _this7 = this;
 
 		var recipes = this.state.recipes.map(function (recipe) {
@@ -527,6 +535,10 @@ var RecipeBox = function (_React$Component6) {
 				editRecipe: _this7.editRecipe.bind(_this7),
 				deleteRecipe: _this7.deleteRecipe.bind(_this7) });
 		});
+		return recipes;
+	};
+
+	RecipeBox.prototype.render = function render() {
 		return React.createElement(
 			"div",
 			{ className: "row" },
@@ -536,7 +548,7 @@ var RecipeBox = function (_React$Component6) {
 				React.createElement(
 					"div",
 					{ className: "panel-group", id: "accordion" },
-					recipes
+					this.outputRecipes()
 				),
 				React.createElement(AddButton, { addRecipe: this.addRecipe.bind(this) })
 			)
@@ -558,37 +570,33 @@ var RecipeBook = function (_React$Component7) {
 	}
 
 	RecipeBook.prototype.render = function render() {
+		var placeholderRecipes = [{
+			id: 0,
+			name: "Veggie Burger",
+			ingredients: "blackbeans, mushroom, flaxseed, lentils, spices, miso"
+		}, {
+			id: 1,
+			name: "Burrito",
+			ingredients: "tortilla, rice, corn, blackkbeans, salsa, sofritas, lettuce"
+		}, {
+			id: 2,
+			name: "Sweet Potato Sushi",
+			ingredients: "sweet potato, white rice, rice vinegar, sugar, nori, avocado"
+		}, {
+			id: 3,
+			name: "Curried Potatoes",
+			ingredients: "potatoes, garam masala, curry powder, smoked paprika, oil"
+		}];
 		return React.createElement(
 			"div",
 			{ id: "mainContainer" },
 			React.createElement(Nav, null),
-			React.createElement(RecipeBox, null),
+			React.createElement(RecipeBox, { placeholder: placeholderRecipes }),
 			React.createElement(Footer, null)
 		);
 	};
 
 	return RecipeBook;
 }(React.Component);
-
-// Placeholder Values
-
-var placeholderRecipes = [{
-	id: 0,
-	name: "Veggie Burger",
-	ingredients: "blackbeans, mushroom, flaxseed, lentils, spices, miso"
-}, {
-	id: 1,
-	name: "Burrito",
-	ingredients: "tortilla, rice, corn, blackkbeans, salsa, sofritas, lettuce"
-}, {
-	id: 2,
-	name: "Sweet Potato Sushi",
-	ingredients: "sweet potato, white rice, rice vinegar, sugar, nori, avocado"
-}, {
-	id: 3,
-	name: "Curried Potatoes",
-	ingredients: "potatoes, garam masala, curry powder, smoked paprika, oil"
-}];
-localStorage._recipes_ = JSON.stringify(placeholderRecipes);
 
 ReactDOM.render(React.createElement(RecipeBook, null), document.getElementById('app'));
