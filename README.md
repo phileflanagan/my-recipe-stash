@@ -10,6 +10,8 @@ See it in action [here](http://phileflanagan.github.io/my-recipe-stash/).
 Tools Used in Design:
  * Bootstrap
  * Bootswatch
+ * SASS
+ * Glyphicons
 
 Tools Used in Development:
  * CodePen.io
