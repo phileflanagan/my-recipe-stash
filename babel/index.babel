@@ -1,0 +1,375 @@
+const Nav = () => {
+	return (
+		<header>
+			<nav className="navbar navbar-default">
+					<div className="container">
+							<div className="navbar-header">
+									<button type="button" className="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+											<span className="icon-bar"></span>
+											<span className="icon-bar"></span>
+											<span className="icon-bar"></span>
+									</button>
+									<a className="navbar-brand" href="#">
+											<span className="glyphicon glyphicon-ice-lolly-tasted"></span> My Recipe Stash
+									</a>
+							</div>
+							<div className="collapse navbar-collapse" id="myNavbar">
+									<ul className="nav navbar-nav navbar-right">
+											<li><a href="#">Home</a></li>
+											<li><a href="#">Recipes</a></li>
+											<li><a href="#">Links</a></li>
+											<li><a href="#">Reviews</a></li>
+											<li><a href="#">Store</a></li>
+											<li><a href="#">FAQ</a></li>
+											<li><a href="#">Contact</a></li>
+									</ul>
+							</div>
+					</div>
+			</nav>
+		</header>
+	);
+}
+
+const Footer = () => {
+	return (
+		<footer className="text-center">
+			<div className="innerFooter">
+			<small className="text-muted">
+				&copy; Copyright 2016 Phil Flanagan
+			</small>
+			</div>
+		</footer>
+	);
+}
+
+class AddButton extends React.Component {
+	render() {
+		return (
+			<div>
+					<button className="btn btn-default  pull-right" 
+						data-toggle="modal" 
+						data-target="#addModal">	
+						<span className="glyphicon glyphicon-plus"></span> Add Recipe
+					</button>
+					<Modal role="add" addRecipe={this.props.addRecipe} />
+				</div>
+		);
+	}
+}
+
+class EditButton extends React.Component {
+	render(){
+		return (
+			<div>
+					<button className="btn btn-default btn-sm pull-right" 
+						data-toggle="modal" 
+						data-target={"#id" + this.props.id}>	
+						<span className="glyphicon glyphicon-pencil"></span>
+					</button>
+					<Modal role="edit" 
+						editId={this.props.id} 
+						name={this.props.name}
+						ingredients={this.props.ingredients}
+						editRecipe={this.props.editRecipe}/> 
+				</div>
+		);
+	}
+}
+
+//Work in Progress
+class DeleteButton extends React.Component {
+	handleDelete(){
+		let id = this.props.id;
+		this.props.deleteRecipe(id);
+	}
+	
+	render() {
+		return (
+			<button 
+				className="btn btn-danger btn-sm pull-right"
+				role="button" 
+				data-toggle="collapse" 
+				data-parent="#accordion" 
+				href={"#collapse"+this.props.id} 
+				aria-expanded="false" 
+				aria-controls={"collapse"+this.props.id}
+				onClick={this.handleDelete.bind(this)}>	
+						<span className="glyphicon glyphicon-trash"></span>
+					</button>
+		);
+	}
+}
+
+class Recipe extends React.Component {
+	render() {
+		// split ingredients into an array, then make each element a <li> item
+		const ingredients = this.props.ingredients.split(",").map(ingredient => {
+			return <li key={ingredient} className="list-group-item">{ingredient}</li>
+		});
+
+		return (
+			<div className="panel panel-success">
+				<div 
+					className="panel-heading" 
+					role="tab" 
+					id={"heading"+this.props.id}>
+						<h4 className="panel-title">
+							<a 
+								role="button" 
+								data-toggle="collapse" 
+								data-parent="#accordion" 
+								href={"#collapse"+this.props.id} 
+								aria-expanded="false" 
+								aria-controls={"collapse"+this.props.id}>
+								{this.props.name}
+							</a>
+						</h4>
+				</div>
+				<div 
+					id={"collapse"+this.props.id} 
+					className="panel-collapse collapse" 
+					role="tabpanel" 
+					aria-labelledby={"heading"+this.props.id}>
+							<h4 className=" text-center">Ingredients</h4>
+							<ul className="list-group">
+								{ingredients}
+							</ul>
+						<div className="panel-body">
+							<DeleteButton 
+								id={this.props.id}
+								deleteRecipe={this.props.deleteRecipe}/> 
+							<EditButton 
+								id={this.props.id} 
+								name={this.props.name}
+								ingredients={this.props.ingredients}
+								editRecipe={this.props.editRecipe} />
+						</div>
+				</div>
+			</div>
+		);
+	}
+}
+
+class Modal extends React.Component {
+	constructor(props) {
+		super(props)
+		if (this.props.role === "add") {
+			this.title = "Add a New Recipe"; //Title in modal
+			this.id = "addModal"; //<div> id
+			this.input = ""; //Recipe Name
+			this.inputId = "inputId"; //<input> id
+			this.text = ""; //Recipe Ingredients
+			this.textId = "textId" //<textarea> id
+			this.button = "Add Recipe"; //Button in modal
+		} else if (this.props.role === "edit") {
+			this.title = "Edit This Recipe";
+			this.id = "id" + this.props.editId;
+			this.input = this.props.name;
+			this.inputId = "input" + this.props.editId;
+			this.text = this.props.ingredients;
+			this.textId = "edit" + this.props.editId;
+			this.button = "Save";
+		} else {
+			console.error("Unexpected Modal Type");
+		}
+		this.state = {
+			title: this.title,
+			id: this.id,
+			input: this.input,
+			inputId: this.inputId,
+			text: this.text,
+			textId: this.textId,
+			button: this.button
+		}
+	}
+	clickHandler() {
+		// handle add recipe modal
+		if (this.props.role === "add") {
+			let addName = $("#" + this.state.inputId).val();
+			let addIngr = $("#" + this.state.textId).val();
+			
+			// handle blank strings
+			if (addName === "") addName = "Untitled";
+			if (addIngr === "") addIngr = "No Ingredients";
+			this.props.addRecipe(
+				addName,
+				addIngr
+			);
+			$("#" + this.state.inputId).val("");
+			$("#" + this.state.textId).val("");
+		} 
+		// handle edit recipe modal
+		else if (this.props.role === "edit") {
+			let editName = $("#" + this.state.inputId).val();
+			let editIngr = $("#" + this.state.textId).val();
+			
+			// handle blank strings
+			if (editName === "") editName = "Untitled";
+			if (editIngr === "") editIngr = "No Ingredients";
+			this.props.editRecipe(
+				this.props.editId,
+				editName,
+				editIngr
+			);
+		} 
+		else {
+			console.error("Improper Role Call");
+		}
+	}
+	render() {
+		return (
+			<div id={this.state.id} className="modal fade" role="dialog">
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <button 
+								type="button" 
+								className="close" 
+								data-dismiss="modal">&times;</button>
+              <h4 className="modal-title text-center">{this.state.title}</h4>
+            </div>
+            <div className="modal-body">
+              <form role="form">
+                <div className="form-group">
+                  <label for={this.state.inputId}>Recipe Name</label>
+                  <input type="text" 
+                    className="form-control"
+                    id={this.state.inputId}
+                    defaultValue={this.state.input} />
+                </div>
+                <div className="form-group">
+                  <label for={this.state.textId}>Ingredients</label>
+									<small> (seperate by commas)</small>
+                  <textarea type="text" 
+                    className="form-control"
+                    id={this.state.textId}
+                    defaultValue={this.state.text} />
+                </div>
+              </form>
+            </div>
+            <div className="modal-footer">
+              <button type="button" 
+                className="btn btn-primary"
+                data-dismiss="modal"
+                onClick={this.clickHandler.bind(this)}>{this.state.button}</button>
+              <button type="button" 
+                className="btn btn-default" 
+                data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+		);
+	}
+}
+
+class RecipeBox extends React.Component {
+	constructor(props) {
+		super(props)
+		this.state = {
+			recipes: JSON.parse(localStorage._recipes_)
+		}
+	}
+
+	componentWillUpdate() {
+		localStorage._recipes = JSON.stringify(this.state.recipes);
+		// console.log("Will Update: " + JSON.stringify(this.state.recipes));
+	}
+
+	addRecipe(name, ingredients) {
+		let recipes = this.state.recipes;
+		let newRecipe = {
+			id: recipes.length,
+			name,
+			ingredients
+		};
+		recipes.push(newRecipe);
+		this.setState({
+			recipes
+		});	
+	}
+
+	editRecipe(id, name, ingredients) {
+		let recipes = this.state.recipes;
+		let newRecipe = {
+			id,
+			name,
+			ingredients
+		};
+		recipes[id] = newRecipe;
+		this.setState({
+			recipes
+		});
+	}
+
+	deleteRecipe(id) {
+		let recipes = this.state.recipes;
+		recipes.splice(id, 1);
+		
+		for(var i = 0; i < recipes.length; i++) {
+			recipes[i]['id'] = i;
+		}
+		
+		this.setState({
+			recipes
+		});
+	}
+
+	render() {
+		let recipes = this.state.recipes.map(recipe => {
+			return <Recipe 
+								id={recipe.id}
+							 	name={recipe.name} 
+							 	ingredients={recipe.ingredients}
+							 	editRecipe={this.editRecipe.bind(this)}
+							  deleteRecipe={this.deleteRecipe.bind(this)}/>
+		})
+		return (
+			<div className="row">
+				<div className="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+						<div className="panel-group" id="accordion">
+						{recipes}
+						</div>
+					<AddButton addRecipe={this.addRecipe.bind(this)} />
+				</div>
+			</div>
+		);
+	}
+}
+
+// Layout Component
+class RecipeBook extends React.Component {
+	render() {
+		return (
+			<div id="mainContainer">
+				<Nav />
+				<RecipeBox />
+				<Footer />
+      </div>
+		);
+	}
+}
+
+// Placeholder Values
+const placeholderRecipes = [
+	{
+		id: 0,
+		name: "Veggie Burger",
+		ingredients: "blackbeans, mushroom, flaxseed, lentils, spices, miso"
+	}, {
+		id: 1,
+		name: "Burrito",
+		ingredients: "tortilla, rice, corn, blackkbeans, salsa, sofritas, lettuce"
+	}, {
+		id: 2,
+		name: "Sweet Potato Sushi",
+		ingredients: "sweet potato, white rice, rice vinegar, sugar, nori, avocado"
+	}, {
+		id: 3,
+		name: "Curried Potatoes",
+		ingredients: "potatoes, garam masala, curry powder, smoked paprika, oil"
+	}
+];
+localStorage._recipes_ = JSON.stringify(placeholderRecipes);
+
+ReactDOM.render(<RecipeBook />, document.getElementById('app'));

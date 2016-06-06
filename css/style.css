@@ -1,0 +1,19 @@
+.navbar {
+  border-radius: 0px;
+}
+
+#app {
+  position: relative;
+  min-height: 95vh;
+}
+
+.innerFooter {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  min-hieght: 100%;
+}
+
+button {
+  margin-left: 5px;
+}
